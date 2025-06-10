@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- 主横幅 -->
+    <section class="hero">
+        <div class="container">
+            <h1>分享生活中的美好瞬间</h1>
+            <p>上传照片、分享故事、结识志同道合的朋友，共同构建温馨的生活社区</p>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('upload') }}" class="btn btn-primary"><i class="fas fa-cloud-upload-alt"></i> 立即上传照片</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary"><i class="fas fa-user-plus"></i> 立即注册</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- 图片展示区 -->
+    <section>
+        <h2 class="section-title"><i class="fas fa-images"></i> 最新照片</h2>
+        <div class="photo-gallery">
+            {% for photo in photos.items %}
+                <div class="photo-card">
+                    <a href="{{ url_for('photo_detail', photo_id=photo.id) }}">
+                        <img src="{{ url_for('static', filename='uploads/thumb_' + photo.filename) }}" alt="{{ photo.title }}" class="photo-img">
+                    </a>
+                    <div class="photo-info">
+                        <div class="photo-title">{{ photo.title }}</div>
+                        <div class="photo-meta">
+                            <span><i class="fas fa-user"></i> {{ photo.author.username }}</span>
+                            <span><i class="far fa-calendar"></i> {{ photo.created_at.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                        <div class="photo-actions">
+                            <button class="action-btn"><i class="fas fa-heart"></i> 128</button>
+                            <button class="action-btn"><i class="fas fa-comment"></i> {{ photo.comments.count() }}</button>
+                            <button class="action-btn"><i class="fas fa-share-alt"></i> 分享</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- 分页导航 -->
+        <div class="load-more">
+            {% if photos.has_prev %}
+                <a href="{{ url_for('index', page=photos.prev_num) }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> 上一页</a>
+            {% endif %}
+            {% if photos.has_next %}
+                <a href="{{ url_for('index', page=photos.next_num) }}" class="btn btn-outline">下一页 <i class="fas fa-arrow-right"></i></a>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="upload-container">
+        <div class="upload-card">
+            <h2 class="section-title"><i class="fas fa-cloud-upload-alt"></i> 上传照片</h2>
+            <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.title.label }}
+                    {{ form.title(class="form-control", placeholder="为照片添加标题") }}
+                </div>
+                <div class="form-group">
+                    {{ form.description.label }}
+                    {{ form.description(class="form-control", placeholder="分享照片背后的故事...", rows=4) }}
+                </div>
+                <div class="form-group">
+                    {{ form.photo.label }}
+                    <div class="file-upload">
+                        <label for="photo" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>点击或拖拽文件到此处上传</span>
+                            <small>支持 JPG, PNG 格式，最大 5MB</small>
+                        </label>
+                        {{ form.photo(id="photo", class="form-control-file") }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

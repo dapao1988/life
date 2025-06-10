@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="photo-detail-container">
+        <div class="photo-detail-card">
+            <div class="photo-header">
+                <h2>{{ photo.title }}</h2>
+                <p class="photo-meta">
+                    <i class="fas fa-user"></i> <a href="{{ url_for('profile', username=photo.author.username) }}">{{ photo.author.username }}</a> | 
+                    <i class="far fa-calendar"></i> {{ photo.created_at.strftime('%Y-%m-%d') }}
+                </p>
+            </div>
+            
+            <div class="photo-display">
+                <img src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="{{ photo.title }}">
+                <p class="photo-description">{{ photo.description }}</p>
+            </div>
+            
+            <div class="photo-actions">
+                <button class="btn btn-outline"><i class="fas fa-heart"></i> 点赞 (128)</button>
+                <button class="btn btn-outline"><i class="fas fa-share-alt"></i> 分享</button>
+                <button class="btn btn-outline"><i class="fas fa-bookmark"></i> 收藏</button>
+            </div>
+        </div>
+        
+        <div class="comments-section">
+            <h3 class="section-title"><i class="fas fa-comments"></i> 评论 ({{ photo.comments.count() }})</h3>
+            
+            {% if current_user.is_authenticated %}
+                <form action="{{ url_for('photo_detail', photo_id=photo.id) }}" method="post" class="comment-form">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form.content(class="form-control", placeholder="分享您的想法...", rows=3) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            {% else %}
+                <div class="alert alert-info">
+                    请<a href="{{ url_for('login') }}">登录</a>后发表评论
+                </div>
+            {% endif %}
+            
+            <div class="comments-list">
+                {% for comment in photo.comments.filter_by(parent_id=None).order_by(Comment.created_at.desc()) %}
+                    <div class="comment">
+                        <div class="comment-header">
+                            <img src="{{ url_for('static', filename='images/avatar.png') }}" alt="头像" class="comment-avatar">
+                            <div class="comment-author">
+                                <strong>{{ comment.author.username }}</strong>
+                                <span>{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.content }}
+                        </div>
+                        <div class="comment-actions">
+                            <a href="#" class="reply-btn" data-comment-id="{{ comment.id }}"><i class="fas fa-reply"></i> 回复</a>
+                        </div>
+                        
+                        <!-- 回复表单 (默认隐藏) -->
+                        <div class="reply-form" id="reply-form-{{ comment.id }}" style="display: none;">
+                            <form action="{{ url_for('reply_comment', comment_id=comment.id) }}" method="post">
+                                {{ form.hidden_tag() }}
+                                <div class="form-group">
+                                    {{ form.content(class="form-control", placeholder="回复 " + comment.author.username + "...", rows=2) }}
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-sm">回复</button>
+                                    <button type="button" class="btn btn-outline btn-sm cancel-reply">取消</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- 回复列表 -->
+                        {% for reply in comment.replies %}
+                            <div class="comment reply">
+                                <div class="comment-header">
+                                    <img src="{{ url_for('static', filename='images/avatar.png') }}" alt="头像" class="comment-avatar">
+                                    <div class="comment-author">
+                                        <strong>{{ reply.author.username }}</strong>
+                                        <span>{{ reply.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                                    </div>
+                                </div>
+                                <div class="comment-content">
+                                    <strong>@{{ comment.author.username }}</strong> {{ reply.content }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-comments">
+                        <p>还没有评论，快来发表第一条评论吧！</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
