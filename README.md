@@ -1,2 +1,2 @@
 # life
-Website test
+Website for picture uploading and display
